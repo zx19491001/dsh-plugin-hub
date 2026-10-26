@@ -1,15 +1,15 @@
 {
   "name": "@local/dsh-plugin-hub",
-  "version": "1.2.0",
+  "version": "1.3.0",
   "private": true,
   "type": "module",
-  "description": "GitHub download centre in the DSH sidebar: resolve any repository, pick a branch or tag, download its ZIP, and copy an install spec.",
+  "description": "GitHub plugin hub in the DSH sidebar: resolve any repository, pick a branch or tag, download its ZIP, or install it into the profile with one click.",
   "repository": "github:zx19491001/dsh-plugin-hub",
   "homepage": "https://github.com/zx19491001/dsh-plugin-hub",
   "keywords": ["dsh", "plugin", "github", "sidebar", "download"],
   "license": "MIT",
   "scripts": {
-    "test": "node --test test/client.test.mjs test/wiring.test.mjs"
+    "test": "node --test test/client.test.mjs test/wiring.test.mjs test/host.test.mjs"
   },
   "exports": {
     ".": "./index.js",

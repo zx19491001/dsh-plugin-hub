@@ -49,9 +49,9 @@ test('bundle patch inserts the plugin row with the package name', () => {
   assert.match(patch, /name:\s*'@local\/dsh-plugin-hub'/);
 });
 
-test('host half exports apply()', () => {
+test('host half exports apply(ctx)', () => {
   const host = read('index.js');
-  assert.match(host, /export function apply\(\)/);
+  assert.match(host, /export function apply\(ctx\)/);
 });
 
 test('client bundle parses and registers both slot halves', () => {
@@ -126,17 +126,28 @@ test('client offers the github install spec', () => {
   assert.match(source, /githubConnectionTimeoutMs/);
 });
 
-test('install action is guarded and uses the host plugin manager', () => {
+test('install action goes through the same-origin host routes', () => {
   const source = read('client.js');
-  assert.match(source, /const manager = resolveManager\(ctx\)/);
-  assert.match(source, /function resolveManager\(ctx\)/);
-  assert.match(source, /function readRemote\(ctx\)/);
-  assert.match(source, /const manager = resolveManager\(ctx\)/);
-  assert.match(source, /const canInstall = Boolean\(manager\)/);
-  assert.match(source, /manager\.installBundle\('github:' \+ key, \{ requestId: requestId \}\)/);
-  assert.match(source, /manager\.cancelInstall\(state\.requestId\)/);
+  assert.match(source, /const canInstall = typeof fetch === 'function'/);
+  assert.match(source, /async function postJson\(path, payload\)/);
+  assert.match(source, /postJson\('plugin-hub\/install', \{ spec: 'github:' \+ key, requestId: requestId \}\)/);
+  assert.match(source, /postJson\('plugin-hub\/cancel', \{ requestId: state\.requestId \}\)/);
+  assert.match(source, /'x-plugin-hub': '1'/);
+  assert.match(source, /credentials: 'same-origin'/);
   assert.match(source, /if \(!canInstall\) return null/);
   assert.doesNotMatch(source, /window\.confirm\(/);
+  assert.doesNotMatch(source, /ctx\.remote/);
+});
+
+test('host half owns the install and cancel routes', () => {
+  const host = read('index.js');
+  assert.match(host, /const INSTALL_PATH = '\/plugin-hub\/install'/);
+  assert.match(host, /const CANCEL_PATH = '\/plugin-hub\/cancel'/);
+  assert.match(host, /pluginManager\.installBundle\(spec, \{ requestId: requestId \}\)/);
+  assert.match(host, /pluginManager\.cancelInstall\(requestId\)/);
+  assert.match(host, /const SPEC_PATTERN = \/\^github:/);
+  assert.match(host, /req\.headers\['x-plugin-hub'\] !== '1'/);
+  assert.match(host, /webServer\.register\(\{ kind: 'exact', path: INSTALL_PATH, handler: handleInstall \}\)/);
 });
 
 test('README explains how to install from GitHub', () => {

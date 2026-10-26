@@ -86,7 +86,7 @@ window.__ModuleLoader__.load({
         'install.failed': '安装失败',
         'install.self': '当前在运行',
         'install.tooLate': '安装已进入应用阶段，无法取消',
-        'install.unavailable': '当前客户端没有提供远程安装入口，请用「安装说明符」或下载 ZIP。',
+        'install.unavailable': '当前页面访问不到安装接口（Host 路由未注册）；请刷新页面，或改用安装说明符与 ZIP 下载。',
         'install.hint': '安装会直接从 GitHub 拉取并在本机启用；首次约 1–2 分钟，过程中可取消。',
         'notice.spec': '已复制安装说明符 github:{repo}，可粘到插件管理的安装框，或交给 Agent 安装',
         'notice.added': '已加入列表 {repo}',
@@ -166,7 +166,7 @@ window.__ModuleLoader__.load({
         'install.failed': 'Install failed',
         'install.self': 'Running now',
         'install.tooLate': 'The install already reached the apply phase',
-        'install.unavailable': 'This client exposes no remote install entry; use the install spec or the ZIP download.',
+        'install.unavailable': 'This page cannot reach the install endpoint (Host route not registered); refresh, or use the install spec or ZIP download.',
         'install.hint': 'Install pulls from GitHub and enables the plugin on this machine; the first run takes 1–2 minutes and can be cancelled.',
         'notice.spec': 'Copied install spec github:{repo}; paste it into the plugin manager install box, or hand it to the Agent',
         'notice.added': 'Added {repo} to the list',
@@ -730,27 +730,24 @@ window.__ModuleLoader__.load({
       return (value / 1024).toFixed(1).replace(/\.0$/, '') + ' MB';
     }
 
-    function readRemote(ctx) {
-      const viaService = readService(ctx, 'remote');
-      if (viaService) return viaService;
+    async function postJson(path, payload) {
+      const response = await fetch(path, {
+        method: 'POST',
+        headers: { 'content-type': 'application/json', 'x-plugin-hub': '1' },
+        body: JSON.stringify(payload),
+        credentials: 'same-origin',
+      });
+      let body = null;
       try {
-        return ctx && ctx.remote ? ctx.remote : undefined;
+        body = await response.json();
       } catch (error) {
-        console.error(error);
-        return undefined;
+        body = null;
       }
-    }
-
-    function resolveManager(ctx) {
-      try {
-        const remote = readRemote(ctx);
-        if (!remote) return null;
-        const manager = remote.pluginManager;
-        if (manager && typeof manager.installBundle === 'function') return manager;
-      } catch (error) {
-        console.error(error);
+      if (!response.ok || !body || body.ok !== true) {
+        const reason = body && body.error ? String(body.error) : 'HTTP ' + response.status;
+        throw new Error(reason);
       }
-      return null;
+      return body;
     }
 
     function entriesInstalling(states) {
@@ -893,8 +890,7 @@ window.__ModuleLoader__.load({
       inject: ['slots'],
       apply(ctx) {
         const locale = readService(ctx, 'locale');
-        const manager = resolveManager(ctx);
-        const canInstall = Boolean(manager);
+        const canInstall = typeof fetch === 'function';
 
         function PanelIcon(props) {
           const size = props && typeof props.size === 'number' && props.size > 0 ? props.size : 22;
@@ -1134,7 +1130,7 @@ window.__ModuleLoader__.load({
           }
 
           function beginInstall(key) {
-            if (!canInstall || !manager) return;
+            if (!canInstall) return;
             const state = install[key];
             if (state && state.phase === 'running') return;
             if (!state || state.phase !== 'confirm') {
@@ -1155,8 +1151,9 @@ window.__ModuleLoader__.load({
             const requestId = 'ph-' + Date.now().toString(36) + '-' + Math.random().toString(36).slice(2, 8);
             setClock(Date.now());
             setInstallState(key, { phase: 'running', message: '', requestId: requestId, startedAt: Date.now() });
-            manager.installBundle('github:' + key, { requestId: requestId }).then(
-              function (result) {
+            postJson('plugin-hub/install', { spec: 'github:' + key, requestId: requestId }).then(
+              function (payload) {
+                const result = payload.result;
                 const application = result && result.application ? result.application : 'failed';
                 const error = result && result.error;
                 const diagnostic = error ? String(error.diagnostic || error.code || '') : '';
@@ -1184,15 +1181,20 @@ window.__ModuleLoader__.load({
 
           function cancelInstall(key) {
             const state = install[key];
-            if (!state || !state.requestId || !manager || typeof manager.cancelInstall !== 'function') return;
-            manager.cancelInstall(state.requestId).then(
-              function (outcome) {
+            if (!state || !state.requestId) return;
+            postJson('plugin-hub/cancel', { requestId: state.requestId }).then(
+              function (payload) {
+                const outcome = payload.outcome;
                 if (outcome && outcome.status === 'too-late') {
                   setInstallState(key, { phase: 'failed', message: t('install.tooLate') });
                 }
               },
               function (error) {
-                console.error(error);
+                setInstallState(key, {
+                  phase: 'failed',
+                  message: String((error && error.message) || error || ''),
+                  requestId: '',
+                });
               },
             );
           }
