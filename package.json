@@ -9,7 +9,7 @@
   "keywords": ["dsh", "plugin", "github", "sidebar", "download"],
   "license": "MIT",
   "scripts": {
-    "test": "node --test test/client.test.mjs"
+    "test": "node --test test/client.test.mjs test/wiring.test.mjs"
   },
   "exports": {
     ".": "./index.js",

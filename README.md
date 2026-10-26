@@ -54,7 +54,8 @@ git clone https://github.com/zx19491001/dsh-plugin-hub.git
 | `cordis.patch.yml` | 插入 `plugin-hub` 行。 |
 | `locale/zh.json`、`locale/en.json` | 插件管理页显示的标题与描述。 |
 | `icon.svg` | 插件图标（原创）。 |
-| `test/client.test.mjs` | 结构测试：清单、注册、链接、文案、图标。 |
+| `test/client.test.mjs` | 结构测试：清单、补丁、注册、链接、文案、图标。 |
+| `test/wiring.test.mjs` | 装载测试：用假 `__ModuleLoader__` 与假 React 跑一遍 `apply()`，确认两个槽位和侧栏文案。 |
 
 ## 测试
 
