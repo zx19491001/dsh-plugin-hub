@@ -730,6 +730,17 @@ window.__ModuleLoader__.load({
       return (value / 1024).toFixed(1).replace(/\.0$/, '') + ' MB';
     }
 
+    function readRemote(ctx) {
+      const viaService = readService(ctx, 'remote');
+      if (viaService) return viaService;
+      try {
+        return ctx && ctx.remote ? ctx.remote : undefined;
+      } catch (error) {
+        console.error(error);
+        return undefined;
+      }
+    }
+
     function entriesInstalling(states) {
       return Object.keys(states || {}).some(function (key) {
         const state = states[key];
@@ -870,7 +881,7 @@ window.__ModuleLoader__.load({
       inject: ['slots'],
       apply(ctx) {
         const locale = readService(ctx, 'locale');
-        const remote = readService(ctx, 'remote') || (ctx && ctx.remote);
+        const remote = readRemote(ctx);
         const manager = remote && remote.pluginManager;
         const canInstall = Boolean(manager && typeof manager.installBundle === 'function');
 
