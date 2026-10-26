@@ -1,0 +1,3 @@
+- insert:
+    - id: plugin-hub
+      name: '@local/dsh-plugin-hub'

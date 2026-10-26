@@ -1,0 +1,6 @@
+{
+  "meta": {
+    "title": "Plugin Hub",
+    "description": "A GitHub download centre in the sidebar: browse installable DSH plugins, grab their ZIP, and copy clone and install commands."
+  }
+}

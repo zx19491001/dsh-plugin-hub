@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-label="Plugin Hub">
+  <defs>
+    <linearGradient id="hub-bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#22304a"/>
+      <stop offset="1" stop-color="#0d1420"/>
+    </linearGradient>
+  </defs>
+  <rect x="2" y="2" width="60" height="60" rx="16" fill="url(#hub-bg)"/>
+  <path d="M32 15v19" fill="none" stroke="#7dd3fc" stroke-width="4.5" stroke-linecap="round"/>
+  <path d="M23.5 26.5 32 35l8.5-8.5" fill="none" stroke="#7dd3fc" stroke-width="4.5" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M17.5 41.5v3.5A4.5 4.5 0 0 0 22 49.5h20a4.5 4.5 0 0 0 4.5-4.5v-3.5" fill="none" stroke="#e2e8f0" stroke-width="4" stroke-linecap="round"/>
+</svg>
