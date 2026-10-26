@@ -35,7 +35,7 @@ github:zx19491001/dsh-plugin-hub
 
 粘到插件管理的安装框，或让 Agent 执行 `install_bundle`。
 
-> 本机网络下 `git ls-remote github.com` 要约 6 秒，而插件管理器探测默认 5000ms 就超时。遇到 `connection to github.com timed out after 5000ms`，把插件管理器配置的 `githubConnectionTimeoutMs` 调大到 `20000` 再装；调不动就用方式一。
+> 本机 `git ls-remote github.com` 要约 6 秒，而插件管理器探测默认 5000ms 就超时。本 profile 已把 `githubConnectionTimeoutMs` 调到 `20000`（在 `cordis.patch.yml` 里覆盖 `plugin-manager` 行），实测 `github:` 说明符可以直装（约 1–2 分钟，含拉取与校验）。换一台机器还是默认 5000 时，需要做同样的覆盖。
 
 ### 方式三：本地开发
 
@@ -74,7 +74,7 @@ npm test
 - 列表是「内置种子 + 手动添加」，不做全站插件搜索。
 - GitHub 未认证 API 每小时 60 次；超限或网络不可用时，星标与更新时间不显示，其余功能不受影响。
 - 私有仓库对其他人不可下载：卡片会标出「私有」或「私有或不存在」。
-- 安装说明符受 Git 探测超时影响，见上面的 `githubConnectionTimeoutMs`。
+- 安装说明符受 Git 探测超时影响：默认 5000ms 在本机会超时，本 profile 已调到 20000。
 
 ## 许可
 
