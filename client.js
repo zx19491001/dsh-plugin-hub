@@ -74,6 +74,20 @@ window.__ModuleLoader__.load({
         'refs.empty': '这个仓库没有其它分支或标签',
         'card.version': '选版本',
         'card.spec': '安装说明符',
+        'card.install': '安装到 DSH',
+        'install.confirm': '确认安装？',
+        'install.running': '安装中 {s}s',
+        'install.cancel': '取消',
+        'install.retry': '重试',
+        'install.done': '已安装',
+        'install.restart': '已安装，重启后生效',
+        'install.overridden': '已安装，被覆盖',
+        'install.cancelled': '已取消',
+        'install.failed': '安装失败',
+        'install.self': '当前在运行',
+        'install.tooLate': '安装已进入应用阶段，无法取消',
+        'install.unavailable': '当前客户端没有提供远程安装入口，请用「安装说明符」或下载 ZIP。',
+        'install.hint': '安装会直接从 GitHub 拉取并在本机启用；首次约 1–2 分钟，过程中可取消。',
         'notice.spec': '已复制安装说明符 github:{repo}，可粘到插件管理的安装框，或交给 Agent 安装',
         'notice.added': '已加入列表 {repo}',
         'toolbar.search': '搜索插件、仓库或描述…',
@@ -140,6 +154,20 @@ window.__ModuleLoader__.load({
         'refs.empty': 'This repository has no other branches or tags',
         'card.version': 'Version',
         'card.spec': 'Install spec',
+        'card.install': 'Install',
+        'install.confirm': 'Confirm install?',
+        'install.running': 'Installing {s}s',
+        'install.cancel': 'Cancel',
+        'install.retry': 'Retry',
+        'install.done': 'Installed',
+        'install.restart': 'Installed — restart to apply',
+        'install.overridden': 'Installed, overridden',
+        'install.cancelled': 'Cancelled',
+        'install.failed': 'Install failed',
+        'install.self': 'Running now',
+        'install.tooLate': 'The install already reached the apply phase',
+        'install.unavailable': 'This client exposes no remote install entry; use the install spec or the ZIP download.',
+        'install.hint': 'Install pulls from GitHub and enables the plugin on this machine; the first run takes 1–2 minutes and can be cancelled.',
         'notice.spec': 'Copied install spec github:{repo}; paste it into the plugin manager install box, or hand it to the Agent',
         'notice.added': 'Added {repo} to the list',
         'toolbar.search': 'Search plugins, repos or descriptions…',
@@ -378,6 +406,11 @@ window.__ModuleLoader__.load({
 .ph-quick-actions { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
 .ph-select { width: auto; min-width: 160px; max-width: 100%; }
 .ph-tag-ok { color: var(--dsw-alias-state-success-primary); border-color: var(--dsw-alias-state-success-primary); }
+.ph-btn:disabled { opacity: 0.6; cursor: default; }
+.ph-install-group { display: inline-flex; align-items: center; gap: 6px; flex-wrap: wrap; }
+.ph-install-result { margin: 0; font-size: 11.5px; color: var(--dsw-alias-label-secondary); overflow-wrap: anywhere; }
+.ph-install-result[data-tone="warn"] { color: var(--dsw-alias-state-warn-primary); }
+.ph-install-result[data-tone="error"] { color: var(--dsw-alias-state-error-primary); }
 .ph-refs { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; padding: 2px 0 2px 44px; font-size: 11.5px; color: var(--dsw-alias-label-secondary); }
 .ph-search:focus-visible, .ph-input:focus-visible, .ph-btn:focus-visible,
 .ph-repo:focus-visible { outline: 2px solid var(--dsw-alias-brand-primary); outline-offset: 1px; }
@@ -697,6 +730,20 @@ window.__ModuleLoader__.load({
       return (value / 1024).toFixed(1).replace(/\.0$/, '') + ' MB';
     }
 
+    function entriesInstalling(states) {
+      return Object.keys(states || {}).some(function (key) {
+        const state = states[key];
+        return Boolean(state && state.phase === 'running');
+      });
+    }
+
+    function truncate(text, max) {
+      const value = String(text || '');
+      if (!value) return '';
+      if (value.length <= max) return value;
+      return value.slice(0, max - 1) + '…';
+    }
+
     function DownloadGlyph() {
       return h(
         'svg',
@@ -823,6 +870,9 @@ window.__ModuleLoader__.load({
       inject: ['slots'],
       apply(ctx) {
         const locale = readService(ctx, 'locale');
+        const remote = readService(ctx, 'remote') || (ctx && ctx.remote);
+        const manager = remote && remote.pluginManager;
+        const canInstall = Boolean(manager && typeof manager.installBundle === 'function');
 
         function PanelIcon(props) {
           const size = props && typeof props.size === 'number' && props.size > 0 ? props.size : 22;
@@ -875,7 +925,10 @@ window.__ModuleLoader__.load({
           const [refChoice, setRefChoice] = useState({});
           const [refsByRepo, setRefsByRepo] = useState({});
           const [openRefs, setOpenRefs] = useState('');
+          const [install, setInstall] = useState({});
+          const [clock, setClock] = useState(0);
           const noticeTimer = useRef(0);
+          const confirmTimer = useRef(0);
 
           useEffect(
             function () {
@@ -887,8 +940,24 @@ window.__ModuleLoader__.load({
           useEffect(function () {
             return function () {
               if (noticeTimer.current) window.clearTimeout(noticeTimer.current);
+              if (confirmTimer.current) window.clearTimeout(confirmTimer.current);
             };
           }, []);
+
+          const installingAny = entriesInstalling(install);
+
+          useEffect(
+            function () {
+              if (!installingAny) return undefined;
+              const handle = window.setInterval(function () {
+                setClock(Date.now());
+              }, 1000);
+              return function () {
+                window.clearInterval(handle);
+              };
+            },
+            [installingAny],
+          );
 
           const entries = useMemo(
             function () {
@@ -1034,6 +1103,160 @@ window.__ModuleLoader__.load({
             flash(t('notice.added', { repo: quickRepo }));
           }
 
+          function setInstallState(key, patch) {
+            setInstall(function (current) {
+              const next = Object.assign({}, current);
+              next[key] = Object.assign({}, current[key] || {}, patch);
+              return next;
+            });
+          }
+
+          function beginInstall(key) {
+            if (!canInstall || !manager) return;
+            const state = install[key];
+            if (state && state.phase === 'running') return;
+            if (!state || state.phase !== 'confirm') {
+              setInstallState(key, { phase: 'confirm', message: '', requestId: '', startedAt: 0 });
+              if (confirmTimer.current) window.clearTimeout(confirmTimer.current);
+              confirmTimer.current = window.setTimeout(function () {
+                setInstall(function (current) {
+                  const entry = current[key];
+                  if (!entry || entry.phase !== 'confirm') return current;
+                  const next = Object.assign({}, current);
+                  next[key] = Object.assign({}, entry, { phase: 'idle' });
+                  return next;
+                });
+              }, 5000);
+              return;
+            }
+            if (confirmTimer.current) window.clearTimeout(confirmTimer.current);
+            const requestId = 'ph-' + Date.now().toString(36) + '-' + Math.random().toString(36).slice(2, 8);
+            setClock(Date.now());
+            setInstallState(key, { phase: 'running', message: '', requestId: requestId, startedAt: Date.now() });
+            manager.installBundle('github:' + key, { requestId: requestId }).then(
+              function (result) {
+                const application = result && result.application ? result.application : 'failed';
+                const error = result && result.error;
+                const diagnostic = error ? String(error.diagnostic || error.code || '') : '';
+                const phase =
+                  application === 'applied'
+                    ? 'done'
+                    : application === 'restart-required'
+                      ? 'restart'
+                      : application === 'overridden'
+                        ? 'overridden'
+                        : application === 'cancelled'
+                          ? 'cancelled'
+                          : 'failed';
+                setInstallState(key, { phase: phase, message: diagnostic, requestId: '' });
+              },
+              function (error) {
+                setInstallState(key, {
+                  phase: 'failed',
+                  message: String((error && error.message) || error || ''),
+                  requestId: '',
+                });
+              },
+            );
+          }
+
+          function cancelInstall(key) {
+            const state = install[key];
+            if (!state || !state.requestId || !manager || typeof manager.cancelInstall !== 'function') return;
+            manager.cancelInstall(state.requestId).then(
+              function (outcome) {
+                if (outcome && outcome.status === 'too-late') {
+                  setInstallState(key, { phase: 'failed', message: t('install.tooLate') });
+                }
+              },
+              function (error) {
+                console.error(error);
+              },
+            );
+          }
+
+          function installButton(key) {
+            if (!canInstall) return null;
+            if (key === SELF_REPO) return h('span', { className: 'ph-tag ph-tag-ok' }, t('install.self'));
+            const state = install[key] || { phase: 'idle' };
+            if (state.phase === 'running') {
+              const seconds = state.startedAt ? Math.max(0, Math.round((clock - state.startedAt) / 1000)) : 0;
+              return h(
+                'span',
+                { className: 'ph-install-group' },
+                h('button', { type: 'button', className: 'ph-btn ph-btn-primary', disabled: true }, t('install.running', { s: seconds })),
+                h(
+                  'button',
+                  {
+                    type: 'button',
+                    className: 'ph-btn',
+                    onClick: function () {
+                      cancelInstall(key);
+                    },
+                  },
+                  t('install.cancel'),
+                ),
+              );
+            }
+            if (state.phase === 'confirm') {
+              return h(
+                'button',
+                {
+                  type: 'button',
+                  className: 'ph-btn ph-btn-primary',
+                  onClick: function () {
+                    beginInstall(key);
+                  },
+                },
+                t('install.confirm'),
+              );
+            }
+            if (state.phase === 'done') return h('span', { className: 'ph-tag ph-tag-ok' }, t('install.done'));
+            if (state.phase === 'restart') return h('span', { className: 'ph-tag' }, t('install.restart'));
+            if (state.phase === 'overridden') return h('span', { className: 'ph-tag' }, t('install.overridden'));
+            if (state.phase === 'cancelled') return h('span', { className: 'ph-tag' }, t('install.cancelled'));
+            if (state.phase === 'failed') {
+              return h(
+                'span',
+                { className: 'ph-install-group' },
+                h('span', { className: 'ph-tag ph-tag-warn', title: state.message || '' }, t('install.failed')),
+                h(
+                  'button',
+                  {
+                    type: 'button',
+                    className: 'ph-btn ph-btn-small',
+                    onClick: function () {
+                      beginInstall(key);
+                    },
+                  },
+                  t('install.retry'),
+                ),
+              );
+            }
+            return h(
+              'button',
+              {
+                type: 'button',
+                className: 'ph-btn ph-btn-primary',
+                onClick: function () {
+                  beginInstall(key);
+                },
+              },
+              t('card.install'),
+            );
+          }
+
+          function installNote(key) {
+            const state = install[key];
+            if (!state || !state.message) return null;
+            if (state.phase !== 'failed' && state.phase !== 'restart') return null;
+            return h(
+              'p',
+              { className: 'ph-install-result', 'data-tone': state.phase === 'failed' ? 'error' : 'warn' },
+              truncate(state.message, 240),
+            );
+          }
+
           function toggleRefs(key) {
             if (openRefs === key) {
               setOpenRefs('');
@@ -1158,10 +1381,11 @@ window.__ModuleLoader__.load({
               h(
                 'div',
                 { className: 'ph-actions' },
+                installButton(key),
                 h(
                   'a',
                   {
-                    className: 'ph-btn ph-btn-primary',
+                    className: canInstall && key !== SELF_REPO ? 'ph-btn' : 'ph-btn ph-btn-primary',
                     href: archiveUrl(key, chosenRefOf(key)),
                     target: '_blank',
                     rel: 'noreferrer noopener',
@@ -1214,6 +1438,7 @@ window.__ModuleLoader__.load({
                       '×',
                     ),
               ),
+              installNote(key),
               openRefs === key
                 ? h(
                     'div',
@@ -1342,6 +1567,7 @@ window.__ModuleLoader__.load({
                       h(
                         'div',
                         { className: 'ph-quick-actions' },
+                        installButton(quickRepo),
                         h(
                           'select',
                           {
@@ -1368,7 +1594,7 @@ window.__ModuleLoader__.load({
                         h(
                           'a',
                           {
-                            className: 'ph-btn ph-btn-primary',
+                            className: canInstall && quickRepo !== SELF_REPO ? 'ph-btn' : 'ph-btn ph-btn-primary',
                             href: archiveUrl(quickRepo, quickRef),
                             target: '_blank',
                             rel: 'noreferrer noopener',
@@ -1390,6 +1616,8 @@ window.__ModuleLoader__.load({
                         ),
                         h('button', { type: 'button', className: 'ph-btn ph-btn-ghost', onClick: addQuick }, t('quick.add')),
                       ),
+                      installNote(quickRepo),
+                      h('p', { className: 'ph-hint' }, canInstall ? t('install.hint') : t('install.unavailable')),
                     )
                   : null,
               ),

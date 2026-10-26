@@ -126,6 +126,17 @@ test('client offers the github install spec', () => {
   assert.match(source, /githubConnectionTimeoutMs/);
 });
 
+test('install action is guarded and uses the host plugin manager', () => {
+  const source = read('client.js');
+  assert.match(source, /const remote = readService\(ctx, 'remote'\) \|\| \(ctx && ctx\.remote\)/);
+  assert.match(source, /const manager = remote && remote\.pluginManager/);
+  assert.match(source, /const canInstall = Boolean\(manager && typeof manager\.installBundle === 'function'\)/);
+  assert.match(source, /manager\.installBundle\('github:' \+ key, \{ requestId: requestId \}\)/);
+  assert.match(source, /manager\.cancelInstall\(state\.requestId\)/);
+  assert.match(source, /if \(!canInstall\) return null/);
+  assert.doesNotMatch(source, /window\.confirm\(/);
+});
+
 test('README explains how to install from GitHub', () => {
   const readme = read('README.md');
   assert.match(readme, /github\.com\/zx19491001\/dsh-plugin-hub/);
