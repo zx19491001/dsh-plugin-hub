@@ -107,6 +107,25 @@ test('icon is a valid, small SVG', () => {
   assert.match(svg, /viewBox="0 0 64 64"/);
 });
 
+test('client can resolve versions and build download URLs', () => {
+  const source = read('client.js');
+  assert.match(source, /function archiveUrl\(key, ref\)/);
+  assert.match(source, /kind === 'tag' \? 'tags' : 'heads'/);
+  assert.match(source, /'\/archive\/refs\/' \+ section \+ '\//);
+  assert.match(source, /function encodeRef\(name\)/);
+  assert.match(source, /https:\/\/raw\.githubusercontent\.com\//);
+  assert.match(source, /function readRefs\(owner, repo, signal\)/);
+  assert.match(source, /'\/branches\?per_page=100'/);
+  assert.match(source, /'\/tags\?per_page=100'/);
+});
+
+test('client offers the github install spec', () => {
+  const source = read('client.js');
+  assert.match(source, /'github:' \+ key/);
+  assert.match(source, /'github:' \+ quickRepo/);
+  assert.match(source, /githubConnectionTimeoutMs/);
+});
+
 test('README explains how to install from GitHub', () => {
   const readme = read('README.md');
   assert.match(readme, /github\.com\/zx19491001\/dsh-plugin-hub/);

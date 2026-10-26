@@ -1,6 +1,6 @@
 # 插件下载中心 · DSH Plugin Hub
 
-左侧栏里的 GitHub 插件下载中心：把可安装的 DSH 插件摆在一页里，仓库直链、ZIP 下载、克隆与安装命令随手可取。
+左侧栏里的 GitHub 下载器：粘一个仓库地址就能选版本、下载 ZIP；常用插件摆成卡片，随手取用。
 
 ![plugin-hub](icon.svg)
 
@@ -12,28 +12,30 @@
 ## 功能
 
 - **左侧栏入口**：和「插件」「自动化任务」同一组，点图标打开中央面板。
-- **插件卡片**：名称、仓库地址、描述、星标数与最近更新时间；一键下载 ZIP、复制 `git clone` 命令、打开仓库。
-- **实时信息（可选）**：通过 GitHub 公共 API 读取星标、更新时间、私有/归档状态；离线、限流或被 CSP 拦截时自动退回静态信息，面板照常可用。
-- **搜索过滤**：按名称、仓库、描述即时筛选。
-- **添加仓库**：支持 `owner/repo`、`https://github.com/owner/repo`、`git@github.com:owner/repo.git` 三种写法；自定义列表存在本机浏览器 `localStorage`（键 `dsh.plugin-hub.sources.v1`），不会上传。
-- **内置安装步骤**：三步装好一个插件，克隆命令一键复制。
+- **快速下载**：粘贴 `owner/repo` 或任意 GitHub 链接 → 解析仓库 → 选默认分支 / 其它分支 / 标签 → 下载 ZIP；顺手标出它是不是 DSH 插件（读仓库里的 `package.json`）。
+- **插件卡片**：内置常用插件，也可自己加；每张卡片能选版本再下载、复制安装说明符、打开仓库。
+- **安装说明符**：一键复制 `github:owner/repo`，粘到插件管理的安装框，或直接交给 Agent 执行 `install_bundle`。
+- **搜索过滤**：按名称、仓库、描述即时筛选；自定义列表存在本机 `localStorage`（键 `dsh.plugin-hub.sources.v1`），不会上传。
+- **实时信息**：星标、更新时间、默认分支、体积走 GitHub 公共 API；离线、限流或被 CSP 拦截时自动退回静态信息，下载链接照常可用。
 
 ## 安装
 
 ### 方式一：ZIP（推荐）
 
-1. 打开 <https://github.com/zx19491001/dsh-plugin-hub> ，点 **Code → Download ZIP**（或直接用上面的下载直链）。
+1. 打开 <https://github.com/zx19491001/dsh-plugin-hub> ，点 **Code → Download ZIP**。
 2. 解压到任意目录。
 3. 在 DSH 里用插件管理器安装这个目录：`plugin_manager` 的 `install_bundle`，`target` 填**解压目录的绝对路径**。
 4. 刷新页面，左侧栏出现「插件下载中心」。
 
-### 方式二：git clone
+### 方式二：安装说明符
 
-```bash
-git clone https://github.com/zx19491001/dsh-plugin-hub.git
+```text
+github:zx19491001/dsh-plugin-hub
 ```
 
-克隆完成后，同样把该目录的绝对路径交给 `plugin_manager` 的 `install_bundle`。
+粘到插件管理的安装框，或让 Agent 执行 `install_bundle`。
+
+> 本机网络下 `git ls-remote github.com` 要约 6 秒，而插件管理器探测默认 5000ms 就超时。遇到 `connection to github.com timed out after 5000ms`，把插件管理器配置的 `githubConnectionTimeoutMs` 调大到 `20000` 再装；调不动就用方式一。
 
 ### 方式三：本地开发
 
@@ -41,16 +43,16 @@ git clone https://github.com/zx19491001/dsh-plugin-hub.git
 
 ## 使用
 
-- 点左侧栏的下载图标打开面板。
-- 每张卡片：**下载 ZIP**、**复制克隆命令**、**打开仓库**；自己添加的仓库右上角有 `×` 可以移除。
-- 右上角「刷新」重新拉取 GitHub 信息；面板顶部搜索框即时过滤。
-- 「添加仓库」把任意 GitHub 上的 DSH 插件加进列表，刷新页面后仍在。
+- **快速下载**：顶部输入框粘地址 → 「解析」→ 选版本 → 「下载 ZIP」。文件由浏览器下载，落在系统下载目录。
+- **卡片**：「下载 ZIP」按当前所选版本下载；「选版本」展开分支/标签下拉（首次展开才请求，省 API 次数）；「安装说明符」复制 `github:owner/repo`。
+- **添加 / 移除**：搜索框右侧「添加仓库」接受 `owner/repo`、GitHub 网页链接、`git@github.com:owner/repo.git`；自定义卡片右上角 `×` 移除。
+- **刷新**：右上角「刷新」重新拉取仓库信息。
 
 ## 结构
 
 | 文件 | 作用 |
 | --- | --- |
-| `client.js` | 唯一的 Web 实现：注册 `sidebar.panellist`（id `plugin-hub`）与 `main`（key `plugin-hub`），面板、卡片、搜索、添加仓库都在这里。 |
+| `client.js` | 唯一的 Web 实现：注册 `sidebar.panellist`（id `plugin-hub`）与 `main`（key `plugin-hub`），快速下载、卡片、版本选择、搜索都在这里。 |
 | `index.js` | Host 半边，不注册任何东西。 |
 | `cordis.patch.yml` | 插入 `plugin-hub` 行。 |
 | `locale/zh.json`、`locale/en.json` | 插件管理页显示的标题与描述。 |
@@ -68,9 +70,11 @@ npm test
 
 ## 已知限制
 
+- 下载由浏览器接管：面板负责选版本和拼地址，文件进系统下载目录，拿不到保存路径回填。
 - 列表是「内置种子 + 手动添加」，不做全站插件搜索。
 - GitHub 未认证 API 每小时 60 次；超限或网络不可用时，星标与更新时间不显示，其余功能不受影响。
 - 私有仓库对其他人不可下载：卡片会标出「私有」或「私有或不存在」。
+- 安装说明符受 Git 探测超时影响，见上面的 `githubConnectionTimeoutMs`。
 
 ## 许可
 

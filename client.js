@@ -53,8 +53,29 @@ window.__ModuleLoader__.load({
       zh: {
         'panel.label': '插件下载中心',
         'panel.title': '插件下载中心',
-        'panel.subtitle': '从 GitHub 下载并安装 DSH 左侧栏插件：仓库直链、ZIP 打包、克隆与安装命令都在这里。',
+        'panel.subtitle': '从 GitHub 下载 DSH 插件或任意仓库：粘贴地址即可选版本下载 ZIP，也能直接复制安装说明符。',
         'panel.repo': '本插件的 GitHub 仓库',
+        'quick.title': '快速下载',
+        'quick.placeholder': '粘贴 GitHub 链接或 owner/repo，例如 zx19491001/dsh-game-studio',
+        'quick.resolve': '解析',
+        'quick.resolving': '正在读取仓库…',
+        'quick.invalid': '地址无效：请填 owner/repo 或 GitHub 链接',
+        'quick.missing': '仓库不存在，或不是公开仓库',
+        'quick.version': '版本',
+        'quick.download': '下载 ZIP',
+        'quick.spec': '复制安装说明符',
+        'quick.add': '加入列表',
+        'quick.isPlugin': 'DSH 插件',
+        'quick.notPlugin': '普通仓库',
+        'refs.default': '默认分支 · {name}',
+        'refs.branch': '分支 · {name}',
+        'refs.tag': '标签 · {name}',
+        'refs.loading': '读取分支…',
+        'refs.empty': '这个仓库没有其它分支或标签',
+        'card.version': '选版本',
+        'card.spec': '安装说明符',
+        'notice.spec': '已复制安装说明符 github:{repo}，可粘到插件管理的安装框，或交给 Agent 安装',
+        'notice.added': '已加入列表 {repo}',
         'toolbar.search': '搜索插件、仓库或描述…',
         'toolbar.add': '添加仓库',
         'toolbar.refresh': '刷新',
@@ -83,10 +104,11 @@ window.__ModuleLoader__.load({
         'add.done': '已添加 {repo}',
         'add.full': '自定义仓库最多 30 个，先移除几个再添加',
         'steps.title': '安装步骤',
-        'steps.one': '下载 ZIP 并解压，或直接用下面的命令克隆仓库。',
-        'steps.two': '在 DSH 的插件管理里把这个目录安装为插件：plugin_manager 的 install_bundle，target 填目录的绝对路径。',
-        'steps.three': '刷新页面，左侧栏就会出现插件入口。',
+        'steps.one': '在上面粘地址或选卡片，选好分支/标签后点「下载 ZIP」，文件进入浏览器的下载目录。',
+        'steps.two': '解压后，把目录的绝对路径交给 plugin_manager 的 install_bundle。',
+        'steps.three': '也可以复制安装说明符 github:owner/repo，直接粘到插件管理的安装框里。',
         'steps.copy': '复制命令',
+        'steps.timeout': '安装说明符若提示 github.com 连接超时，把插件管理器配置的 githubConnectionTimeoutMs 调大（默认 5000 毫秒，本机网络建议 20000）。',
         'notice.copied': '已复制克隆命令',
         'notice.copyFailed': '复制失败：请手动选中命令复制',
         'notice.removed': '已从列表移除 {repo}',
@@ -97,8 +119,29 @@ window.__ModuleLoader__.load({
       en: {
         'panel.label': 'Plugin Hub',
         'panel.title': 'Plugin Hub',
-        'panel.subtitle': 'Download and install DSH sidebar plugins straight from GitHub: repo links, ZIP archives, clone and install commands.',
+        'panel.subtitle': 'Download DSH plugins or any GitHub repository: paste a link, pick a version, grab the ZIP, or copy the install spec.',
         'panel.repo': 'This plugin on GitHub',
+        'quick.title': 'Quick download',
+        'quick.placeholder': 'Paste a GitHub link or owner/repo, e.g. zx19491001/dsh-game-studio',
+        'quick.resolve': 'Read',
+        'quick.resolving': 'Reading repository…',
+        'quick.invalid': 'Cannot read that address: use owner/repo or a GitHub URL',
+        'quick.missing': 'Repository missing or not public',
+        'quick.version': 'Version',
+        'quick.download': 'Download ZIP',
+        'quick.spec': 'Copy install spec',
+        'quick.add': 'Add to list',
+        'quick.isPlugin': 'DSH plugin',
+        'quick.notPlugin': 'Plain repo',
+        'refs.default': 'Default branch · {name}',
+        'refs.branch': 'Branch · {name}',
+        'refs.tag': 'Tag · {name}',
+        'refs.loading': 'Reading branches…',
+        'refs.empty': 'This repository has no other branches or tags',
+        'card.version': 'Version',
+        'card.spec': 'Install spec',
+        'notice.spec': 'Copied install spec github:{repo}; paste it into the plugin manager install box, or hand it to the Agent',
+        'notice.added': 'Added {repo} to the list',
         'toolbar.search': 'Search plugins, repos or descriptions…',
         'toolbar.add': 'Add repo',
         'toolbar.refresh': 'Refresh',
@@ -127,10 +170,11 @@ window.__ModuleLoader__.load({
         'add.done': 'Added {repo}',
         'add.full': 'Up to 30 custom repos; remove a few first',
         'steps.title': 'Install steps',
-        'steps.one': 'Download the ZIP and unpack it, or clone the repository with the command below.',
-        'steps.two': 'In DSH plugin management, install that directory as a plugin: plugin_manager install_bundle with the absolute directory as target.',
-        'steps.three': 'Refresh the page and the sidebar entry appears.',
+        'steps.one': 'Paste a link above or pick a card, choose a branch or tag, then hit Download ZIP; the file lands in your browser downloads folder.',
+        'steps.two': 'Unpack it and hand the absolute directory path to plugin_manager install_bundle.',
+        'steps.three': 'Or copy the install spec github:owner/repo and paste it into the plugin manager install box.',
         'steps.copy': 'Copy',
+        'steps.timeout': 'If an install spec reports a github.com connection timeout, raise githubConnectionTimeoutMs in the plugin manager config (default 5000 ms; 20000 suits this network).',
         'notice.copied': 'Clone command copied',
         'notice.copyFailed': 'Copy failed: select the command and copy it manually',
         'notice.removed': 'Removed {repo}',
@@ -315,6 +359,26 @@ window.__ModuleLoader__.load({
 .ph-empty p { margin: 0; }
 .ph-empty-hint { font-size: 12px; }
 .ph-note { margin: 4px 0 0; font-size: 11.5px; color: var(--dsw-alias-label-secondary); }
+.ph-quick {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 14px;
+  border: 1px solid var(--dsw-alias-border-l1);
+  border-radius: 12px;
+  background: var(--dsw-alias-bg-layer-1);
+}
+.ph-quick-title { margin: 0; font-size: 13px; font-weight: 600; }
+.ph-quick-row { display: flex; gap: 8px; flex-wrap: wrap; }
+.ph-quick-input { flex: 1 1 320px; min-width: 200px; }
+.ph-quick-result { display: flex; flex-direction: column; gap: 10px; padding-top: 4px; border-top: 1px dashed var(--dsw-alias-border-l1); }
+.ph-quick-info { display: flex; flex-direction: column; gap: 4px; min-width: 0; }
+.ph-quick-name { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; font-size: 13px; }
+.ph-quick-size { font-size: 12px; color: var(--dsw-alias-label-secondary); font-variant-numeric: tabular-nums; }
+.ph-quick-actions { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+.ph-select { width: auto; min-width: 160px; max-width: 100%; }
+.ph-tag-ok { color: var(--dsw-alias-state-success-primary); border-color: var(--dsw-alias-state-success-primary); }
+.ph-refs { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; padding: 2px 0 2px 44px; font-size: 11.5px; color: var(--dsw-alias-label-secondary); }
 .ph-search:focus-visible, .ph-input:focus-visible, .ph-btn:focus-visible,
 .ph-repo:focus-visible { outline: 2px solid var(--dsw-alias-brand-primary); outline-offset: 1px; }
 @media (max-width: 760px) {
@@ -548,6 +612,7 @@ window.__ModuleLoader__.load({
               archived: Boolean(json.archived),
               description: typeof json.description === 'string' ? json.description : '',
               url: typeof json.html_url === 'string' ? json.html_url : '',
+              size: typeof json.size === 'number' ? json.size : 0,
               branch: typeof json.default_branch === 'string' && json.default_branch ? json.default_branch : 'main',
             };
           });
@@ -555,6 +620,81 @@ window.__ModuleLoader__.load({
         .catch(function () {
           return { status: 'error' };
         });
+    }
+
+    function readRefs(owner, repo, signal) {
+      const base = API_BASE + encodeURIComponent(owner) + '/' + encodeURIComponent(repo);
+      const headers = { Accept: 'application/vnd.github+json' };
+      function names(path, key) {
+        return fetch(base + path, { headers: headers, signal: signal })
+          .then(function (response) {
+            return response.ok ? response.json() : [];
+          })
+          .then(function (list) {
+            if (!Array.isArray(list)) return [];
+            return list
+              .map(function (item) {
+                return item && typeof item[key] === 'string' ? item[key] : '';
+              })
+              .filter(Boolean)
+              .slice(0, 60);
+          })
+          .catch(function () {
+            return [];
+          });
+      }
+      return Promise.all([names('/branches?per_page=100', 'name'), names('/tags?per_page=100', 'name')]).then(function (lists) {
+        return { branches: lists[0], tags: lists[1] };
+      });
+    }
+
+    function readManifest(owner, repo, branch, signal) {
+      const url =
+        'https://raw.githubusercontent.com/' +
+        encodeURIComponent(owner) +
+        '/' +
+        encodeURIComponent(repo) +
+        '/' +
+        encodeRef(branch || 'main') +
+        '/package.json';
+      return fetch(url, { signal: signal })
+        .then(function (response) {
+          return response.ok ? response.json() : null;
+        })
+        .then(function (json) {
+          if (!json || typeof json !== 'object') return { status: 'no' };
+          const dsh = json.dsh;
+          const isPlugin = Boolean(dsh && dsh.bundle && dsh.bundle.patch);
+          return { status: isPlugin ? 'yes' : 'no', name: typeof json.name === 'string' ? json.name : '' };
+        })
+        .catch(function () {
+          return { status: 'unknown' };
+        });
+    }
+
+    function encodeRef(name) {
+      return String(name || '')
+        .split('/')
+        .map(function (segment) {
+          return encodeURIComponent(segment);
+        })
+        .join('/');
+    }
+
+    function archiveUrl(key, ref) {
+      if (!ref) return 'https://github.com/' + key + '/archive/refs/heads/main.zip';
+      const at = ref.indexOf(':');
+      const kind = ref.slice(0, at);
+      const name = ref.slice(at + 1);
+      const section = kind === 'tag' ? 'tags' : 'heads';
+      return 'https://github.com/' + key + '/archive/refs/' + section + '/' + encodeRef(name) + '.zip';
+    }
+
+    function formatSize(kilobytes) {
+      const value = Number(kilobytes) || 0;
+      if (!value) return '';
+      if (value < 1024) return value + ' KB';
+      return (value / 1024).toFixed(1).replace(/\.0$/, '') + ' MB';
     }
 
     function DownloadGlyph() {
@@ -660,6 +800,25 @@ window.__ModuleLoader__.load({
       );
     }
 
+    function SearchGlyph() {
+      return h(
+        'svg',
+        {
+          width: 14,
+          height: 14,
+          viewBox: '0 0 24 24',
+          fill: 'none',
+          stroke: 'currentColor',
+          strokeWidth: 1.8,
+          strokeLinecap: 'round',
+          'aria-hidden': true,
+          focusable: false,
+        },
+        h('circle', { cx: 10.5, cy: 10.5, r: 6.5 }),
+        h('path', { d: 'm15.5 15.5 4.5 4.5' }),
+      );
+    }
+
     return {
       inject: ['slots'],
       apply(ctx) {
@@ -705,6 +864,17 @@ window.__ModuleLoader__.load({
           const [notice, setNotice] = useState('');
           const [live, setLive] = useState({});
           const [tick, setTick] = useState(0);
+          const [quickText, setQuickText] = useState('');
+          const [quickStatus, setQuickStatus] = useState('idle');
+          const [quickError, setQuickError] = useState('');
+          const [quickRepo, setQuickRepo] = useState('');
+          const [quickMeta, setQuickMeta] = useState(null);
+          const [quickRefs, setQuickRefs] = useState(null);
+          const [quickRef, setQuickRef] = useState('');
+          const [quickPlugin, setQuickPlugin] = useState('');
+          const [refChoice, setRefChoice] = useState({});
+          const [refsByRepo, setRefsByRepo] = useState({});
+          const [openRefs, setOpenRefs] = useState('');
           const noticeTimer = useRef(0);
 
           useEffect(
@@ -808,6 +978,111 @@ window.__ModuleLoader__.load({
             flash(t('notice.removed', { repo: key }));
           }
 
+          function resolveQuick() {
+            const parsed = parseRepo(quickText);
+            if (!parsed) {
+              setQuickStatus('error');
+              setQuickError(t('quick.invalid'));
+              return;
+            }
+            const key = parsed.owner + '/' + parsed.repo;
+            setQuickStatus('loading');
+            setQuickError('');
+            setQuickRepo(key);
+            setQuickMeta(null);
+            setQuickRefs(null);
+            setQuickPlugin('');
+            const controller = typeof AbortController === 'function' ? new AbortController() : null;
+            const signal = controller ? controller.signal : undefined;
+            Promise.all([readMeta(parsed.owner, parsed.repo, signal), readRefs(parsed.owner, parsed.repo, signal)]).then(
+              function (results) {
+                const meta = results[0];
+                if (!meta || meta.status !== 'ok') {
+                  setQuickStatus('error');
+                  setQuickError(t('quick.missing'));
+                  return;
+                }
+                setQuickMeta(meta);
+                setQuickRefs(results[1]);
+                setQuickStatus('ready');
+                const branch = meta.branch || 'main';
+                setQuickRef('branch:' + branch);
+                readManifest(parsed.owner, parsed.repo, branch, signal).then(function (manifest) {
+                  setQuickPlugin(manifest.status);
+                });
+              },
+            );
+          }
+
+          function addQuick() {
+            if (!quickRepo) return;
+            const exists = entries.some(function (entry) {
+              return keyOf(entry).toLowerCase() === quickRepo.toLowerCase();
+            });
+            if (exists) {
+              flash(t('add.dup'));
+              return;
+            }
+            if (custom.length >= MAX_CUSTOM) {
+              flash(t('add.full'));
+              return;
+            }
+            const parts = quickRepo.split('/');
+            setCustom(function (current) {
+              return current.concat([{ owner: parts[0], repo: parts[1], title: '', addedAt: Date.now() }]);
+            });
+            flash(t('notice.added', { repo: quickRepo }));
+          }
+
+          function toggleRefs(key) {
+            if (openRefs === key) {
+              setOpenRefs('');
+              return;
+            }
+            setOpenRefs(key);
+            if (refsByRepo[key]) return;
+            setRefsByRepo(function (current) {
+              const next = Object.assign({}, current);
+              next[key] = { status: 'loading', branches: [], tags: [] };
+              return next;
+            });
+            const parts = key.split('/');
+            readRefs(parts[0], parts[1]).then(function (refs) {
+              setRefsByRepo(function (current) {
+                const next = Object.assign({}, current);
+                next[key] = { status: 'ready', branches: refs.branches, tags: refs.tags };
+                return next;
+              });
+            });
+          }
+
+          function defaultRefOf(key) {
+            const meta = live[key];
+            const branch = meta && meta.status === 'ok' && meta.branch ? meta.branch : 'main';
+            return 'branch:' + branch;
+          }
+
+          function chosenRefOf(key) {
+            return refChoice[key] || defaultRefOf(key);
+          }
+
+          function refOptions(key) {
+            const refs = refsByRepo[key];
+            const meta = live[key];
+            const def = meta && meta.status === 'ok' && meta.branch ? meta.branch : 'main';
+            const options = [h('option', { key: 'default', value: 'branch:' + def }, t('refs.default', { name: def }))];
+            if (refs && refs.status === 'ready') {
+              (refs.branches || []).forEach(function (name) {
+                if (name === def) return;
+                options.push(h('option', { key: 'b:' + name, value: 'branch:' + name }, t('refs.branch', { name: name })));
+              });
+              (refs.tags || []).forEach(function (name) {
+                options.push(h('option', { key: 't:' + name, value: 'tag:' + name }, t('refs.tag', { name: name })));
+              });
+            }
+            return options;
+          }
+
           const needle = query.trim().toLowerCase();
           const visible = entries.filter(function (entry) {
             if (!needle) return true;
@@ -830,8 +1105,6 @@ window.__ModuleLoader__.load({
             const liveDesc = meta && meta.status === 'ok' && meta.description ? meta.description : '';
             const desc = displayDesc(entry, lang) || liveDesc || t('card.noDesc');
             const repoUrl = meta && meta.status === 'ok' && meta.url ? meta.url : 'https://github.com/' + key;
-            const branch = meta && meta.status === 'ok' && meta.branch ? meta.branch : 'main';
-            const zipUrl = 'https://github.com/' + key + '/archive/refs/heads/' + encodeURIComponent(branch) + '.zip';
             const tags = [];
             if (entry.builtin) tags.push(h('span', { key: 'builtin', className: 'ph-tag' }, t('tag.builtin')));
             if (meta && meta.status === 'missing') {
@@ -887,7 +1160,12 @@ window.__ModuleLoader__.load({
                 { className: 'ph-actions' },
                 h(
                   'a',
-                  { className: 'ph-btn ph-btn-primary', href: zipUrl, target: '_blank', rel: 'noreferrer noopener' },
+                  {
+                    className: 'ph-btn ph-btn-primary',
+                    href: archiveUrl(key, chosenRefOf(key)),
+                    target: '_blank',
+                    rel: 'noreferrer noopener',
+                  },
                   h(DownloadGlyph, null),
                   t('card.download'),
                 ),
@@ -896,12 +1174,24 @@ window.__ModuleLoader__.load({
                   {
                     type: 'button',
                     className: 'ph-btn',
+                    'aria-expanded': openRefs === key ? 'true' : 'false',
                     onClick: function () {
-                      copy('git clone https://github.com/' + key + '.git', 'notice.copied');
+                      toggleRefs(key);
+                    },
+                  },
+                  t('card.version'),
+                ),
+                h(
+                  'button',
+                  {
+                    type: 'button',
+                    className: 'ph-btn',
+                    onClick: function () {
+                      copy('github:' + key, 'notice.spec');
                     },
                   },
                   h(CopyGlyph, null),
-                  t('card.clone'),
+                  t('card.spec'),
                 ),
                 h(
                   'a',
@@ -924,6 +1214,36 @@ window.__ModuleLoader__.load({
                       '×',
                     ),
               ),
+              openRefs === key
+                ? h(
+                    'div',
+                    { className: 'ph-refs' },
+                    h(
+                      'select',
+                      {
+                        className: 'ph-input ph-select',
+                        value: chosenRefOf(key),
+                        'aria-label': t('card.version'),
+                        onChange: function (event) {
+                          const value = event.target.value;
+                          setRefChoice(function (current) {
+                            const next = Object.assign({}, current);
+                            next[key] = value;
+                            return next;
+                          });
+                        },
+                      },
+                      refOptions(key),
+                    ),
+                    refsByRepo[key] && refsByRepo[key].status === 'loading'
+                      ? h('span', null, t('refs.loading'))
+                      : refsByRepo[key] &&
+                          refsByRepo[key].status === 'ready' &&
+                          !(refsByRepo[key].branches.length + refsByRepo[key].tags.length)
+                        ? h('span', null, t('refs.empty'))
+                        : null,
+                  )
+                : null,
             );
           }
 
@@ -973,6 +1293,105 @@ window.__ModuleLoader__.load({
                     t('toolbar.refresh'),
                   ),
                 ),
+              ),
+              h(
+                'section',
+                { className: 'ph-quick' },
+                h('h2', { className: 'ph-quick-title' }, t('quick.title')),
+                h(
+                  'form',
+                  {
+                    className: 'ph-quick-row',
+                    onSubmit: function (event) {
+                      event.preventDefault();
+                      resolveQuick();
+                    },
+                  },
+                  h('input', {
+                    className: 'ph-input ph-quick-input',
+                    value: quickText,
+                    placeholder: t('quick.placeholder'),
+                    'aria-label': t('quick.placeholder'),
+                    onChange: function (event) {
+                      setQuickText(event.target.value);
+                    },
+                  }),
+                  h('button', { type: 'submit', className: 'ph-btn ph-btn-primary' }, h(SearchGlyph, null), t('quick.resolve')),
+                ),
+                quickStatus === 'loading' ? h('p', { className: 'ph-hint' }, t('quick.resolving')) : null,
+                quickStatus === 'error' ? h('p', { className: 'ph-error', role: 'alert' }, quickError) : null,
+                quickStatus === 'ready' && quickRepo
+                  ? h(
+                      'div',
+                      { className: 'ph-quick-result' },
+                      h(
+                        'div',
+                        { className: 'ph-quick-info' },
+                        h(
+                          'div',
+                          { className: 'ph-quick-name' },
+                          h('strong', null, quickRepo),
+                          quickPlugin === 'yes' ? h('span', { className: 'ph-tag ph-tag-ok' }, t('quick.isPlugin')) : null,
+                          quickPlugin === 'no' ? h('span', { className: 'ph-tag' }, t('quick.notPlugin')) : null,
+                          quickMeta && quickMeta.size
+                            ? h('span', { className: 'ph-quick-size' }, formatSize(quickMeta.size))
+                            : null,
+                        ),
+                        quickMeta && quickMeta.description ? h('p', { className: 'ph-desc' }, quickMeta.description) : null,
+                      ),
+                      h(
+                        'div',
+                        { className: 'ph-quick-actions' },
+                        h(
+                          'select',
+                          {
+                            className: 'ph-input ph-select',
+                            value: quickRef,
+                            'aria-label': t('quick.version'),
+                            onChange: function (event) {
+                              setQuickRef(event.target.value);
+                            },
+                          },
+                          h(
+                            'option',
+                            { value: 'branch:' + (quickMeta && quickMeta.branch ? quickMeta.branch : 'main') },
+                            t('refs.default', { name: quickMeta && quickMeta.branch ? quickMeta.branch : 'main' }),
+                          ),
+                          (quickRefs && quickRefs.branches ? quickRefs.branches : []).map(function (name) {
+                            if (name === (quickMeta && quickMeta.branch ? quickMeta.branch : 'main')) return null;
+                            return h('option', { key: 'b:' + name, value: 'branch:' + name }, t('refs.branch', { name: name }));
+                          }),
+                          (quickRefs && quickRefs.tags ? quickRefs.tags : []).map(function (name) {
+                            return h('option', { key: 't:' + name, value: 'tag:' + name }, t('refs.tag', { name: name }));
+                          }),
+                        ),
+                        h(
+                          'a',
+                          {
+                            className: 'ph-btn ph-btn-primary',
+                            href: archiveUrl(quickRepo, quickRef),
+                            target: '_blank',
+                            rel: 'noreferrer noopener',
+                          },
+                          h(DownloadGlyph, null),
+                          t('quick.download'),
+                        ),
+                        h(
+                          'button',
+                          {
+                            type: 'button',
+                            className: 'ph-btn',
+                            onClick: function () {
+                              copy('github:' + quickRepo, 'notice.spec');
+                            },
+                          },
+                          h(CopyGlyph, null),
+                          t('quick.spec'),
+                        ),
+                        h('button', { type: 'button', className: 'ph-btn ph-btn-ghost', onClick: addQuick }, t('quick.add')),
+                      ),
+                    )
+                  : null,
               ),
               h(
                 'div',
@@ -1108,6 +1527,7 @@ window.__ModuleLoader__.load({
                     t('steps.copy'),
                   ),
                 ),
+                h('p', { className: 'ph-hint' }, t('steps.timeout')),
               ),
               h('p', { className: 'ph-note' }, t('note.storage')),
             ),
