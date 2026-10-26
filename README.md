@@ -6,6 +6,7 @@
 
 - 仓库：<https://github.com/zx19491001/dsh-plugin-hub>
 - 下载：<https://github.com/zx19491001/dsh-plugin-hub/archive/refs/heads/main.zip>
+- 版本发布：<https://github.com/zx19491001/dsh-plugin-hub/releases>
 - 许可：MIT
 
 ## 功能
