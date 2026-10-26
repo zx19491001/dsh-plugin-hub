@@ -91,3 +91,29 @@ test('sidebar label follows the active locale', async () => {
   const sidebar = registrations.find((item) => item.key === 'sidebar.panellist');
   assert.equal(sidebar.value.spec.label(), 'Plugin Hub');
 });
+
+test('a throwing remote entry never stops slot registration', async () => {
+  const mod = instantiate(await loaded);
+  const registrations = [];
+  mod.apply({
+    get(name) {
+      if (name !== 'locale') return undefined;
+      return { getLocale: () => ({ active: 'zh' }), subscribe: () => () => {} };
+    },
+    get remote() {
+      throw new Error('remote unavailable');
+    },
+    slots: {
+      inject(key, callback) {
+        registrations.push({ key, value: callback() });
+        return () => {};
+      },
+      register(slotSpec, component) {
+        return { spec: slotSpec, component };
+      },
+    },
+  });
+  assert.equal(registrations.length, 2);
+  assert.equal(registrations[0].value.spec.id, 'plugin-hub');
+  assert.equal(registrations[1].value.spec.key, 'plugin-hub');
+});

@@ -128,10 +128,11 @@ test('client offers the github install spec', () => {
 
 test('install action is guarded and uses the host plugin manager', () => {
   const source = read('client.js');
-  assert.match(source, /const remote = readRemote\(ctx\)/);
+  assert.match(source, /const manager = resolveManager\(ctx\)/);
+  assert.match(source, /function resolveManager\(ctx\)/);
   assert.match(source, /function readRemote\(ctx\)/);
-  assert.match(source, /const manager = remote && remote\.pluginManager/);
-  assert.match(source, /const canInstall = Boolean\(manager && typeof manager\.installBundle === 'function'\)/);
+  assert.match(source, /const manager = resolveManager\(ctx\)/);
+  assert.match(source, /const canInstall = Boolean\(manager\)/);
   assert.match(source, /manager\.installBundle\('github:' \+ key, \{ requestId: requestId \}\)/);
   assert.match(source, /manager\.cancelInstall\(state\.requestId\)/);
   assert.match(source, /if \(!canInstall\) return null/);

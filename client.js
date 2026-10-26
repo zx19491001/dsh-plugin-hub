@@ -741,6 +741,18 @@ window.__ModuleLoader__.load({
       }
     }
 
+    function resolveManager(ctx) {
+      try {
+        const remote = readRemote(ctx);
+        if (!remote) return null;
+        const manager = remote.pluginManager;
+        if (manager && typeof manager.installBundle === 'function') return manager;
+      } catch (error) {
+        console.error(error);
+      }
+      return null;
+    }
+
     function entriesInstalling(states) {
       return Object.keys(states || {}).some(function (key) {
         const state = states[key];
@@ -881,9 +893,8 @@ window.__ModuleLoader__.load({
       inject: ['slots'],
       apply(ctx) {
         const locale = readService(ctx, 'locale');
-        const remote = readRemote(ctx);
-        const manager = remote && remote.pluginManager;
-        const canInstall = Boolean(manager && typeof manager.installBundle === 'function');
+        const manager = resolveManager(ctx);
+        const canInstall = Boolean(manager);
 
         function PanelIcon(props) {
           const size = props && typeof props.size === 'number' && props.size > 0 ? props.size : 22;
